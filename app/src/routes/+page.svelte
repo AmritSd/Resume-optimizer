@@ -37,9 +37,19 @@
             id:  id,
             date : "YYYY-MM-DD",
             lines : [
-                'Project description 1.',
-                'Project description line 2.',
-                'More stuff...',
+                {
+                    text : "Project description 1.",
+                    toggled: true
+                },
+                {
+                    text : "Project description line 2.",
+                    toggled: true
+
+                },
+                {
+                    text : "More stuff...",
+                    toggled: true
+                }
             ],
             scores : []
         });

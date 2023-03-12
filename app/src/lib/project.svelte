@@ -8,7 +8,6 @@
 
 
     let similarities = [];
-    let toggles = project_data.lines.map(() => true);
     let lines = project_data.lines;
     let updating = false;
 
@@ -19,15 +18,18 @@
     }
 
     async function embed(data) {
+        data = get_text(data.lines);
+        console.log(data);
         const response = await fetch('/api/embed', {
             method: 'POST',
-            body: JSON.stringify({ input: data.lines }),
+            body: JSON.stringify({ input: data }),
             headers: {
                 'content-type': 'application/json'
             }
         });
         // Get the response data as JSON
         let output = await response.json();
+        console.log(output);
         // covnert to array
         output = Object.keys(output).map(function(key) {
             return output[key];
@@ -63,21 +65,28 @@
             updating = true;
             await new Promise(r => setTimeout(r, 1000));
             project_data.lines = lines;
-            project_data.scores = await embed(project_data);
+            // Write await embed(project_data) to project_data.lines.scores
+            let scores = await embed(project_data);
+            project_data.lines.forEach((line, i) => {
+                line.scores = scores[i];
+            });
             project_data = project_data;
             updating = false;
             await new Promise(r => setTimeout(r, 1000));
             project_data.lines = lines;
-            project_data.scores = await embed(project_data);
+            scores = await embed(project_data);
+            project_data.lines.forEach((line, i) => {
+                line.scores = scores[i];
+            });
             project_data = project_data;
         }
     }
 
-    const update_description_and_bullets = (lines, toggles) => {
+    const update_description_and_bullets = (lines) => {
         let description = [];
         let bullets = [];
         for(let i = 0; i < lines.length; i++) {
-            if(toggles[i]) {
+            if(lines[i].toggled) {
                 bullets.push(lines[i]);
             } else {
                 description.push(lines[i]);
@@ -105,24 +114,35 @@
     
     onMount(async () => {
         // If scores are not empty, then don't embed
-        if(project_data.scores.length == 0) {
-            project_data.scores = await embed(project_data);
+        // If any line in project_data.lines does not have a score, then embed
+        let embed_now = false;
+        for(let i = 0; i < project_data.lines.length; i++) {
+            if(typeof project_data.lines[i].scores === 'undefined' || project_data.lines[i].scores.length == 0) {
+                embed_now = true;
+                break;
+            }
+        }
+        if(embed_now) {
+            let scores = await embed(project_data);
+            project_data.lines.forEach((line, i) => {
+                line.scores = scores[i];
+            });
         }
     });
 
     $: update_scores(lines);
 
-    $: similarities = get_similarities($jd_scores, project_data.scores);
+    $: similarities = get_similarities($jd_scores, project_data.lines.map((line) => line.scores));
 
-    $: update_description_and_bullets(lines, toggles);
+    $: update_description_and_bullets(lines);
 </script>
 
 <!-- Pretty print data -->
 <h2 contenteditable="true" bind:textContent={project_data.name} />
 <h3 contenteditable="true" bind:textContent={project_data.date} />
-{#each lines as line, index}
-    <p contenteditable="true" bind:textContent={line} />
-    <input type="checkbox" bind:checked={toggles[index]} />
+{#each lines as line}
+    <p contenteditable="true" bind:textContent={line.text} />
+    <input type="checkbox" bind:checked={line.toggled} />
 {/each}
 
 
