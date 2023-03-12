@@ -39,16 +39,19 @@
             lines : [
                 {
                     text : "Project description 1.",
-                    toggled: true
+                    toggled: true,
+                    include: true,
                 },
                 {
                     text : "Project description line 2.",
-                    toggled: true
+                    toggled: true,
+                    include: true,
 
                 },
                 {
                     text : "More stuff...",
-                    toggled: true
+                    toggled: true,
+                    include: true,
                 }
             ],
             scores : []
@@ -64,11 +67,6 @@
 
         $app_data = $app_data;
     }
-
-    // let id = '39320382';
-    
-    // onMount(async () => {
-    // });
 </script>
 
 <div class="flex">
@@ -89,9 +87,9 @@
     
     </div>
     
-    <!-- <div class="right">
-        <Resume project_data={$app_data.projects} />
-    </div> -->
+    <div class="right">
+        <Resume project_data={$app_data?.projects} />
+    </div>
 </div>
 
 

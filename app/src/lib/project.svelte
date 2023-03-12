@@ -1,77 +1,34 @@
 <script>
     import { onMount } from 'svelte';
     import { jd_scores } from '$lib/stores.js';
-    import { cosine_similarity } from '$lib/helper_functions.js'
-
+    import { embed, get_text, get_similarities} from '$lib/project_helpers.js'
     // random string 10 char long
     export let project_data = {};
 
 
-    let similarities = [];
     let lines = project_data.lines;
     let updating = false;
-
-    function get_text(lines) {
-        return lines.map((line) => {
-            return line.text;
-        });
-    }
-
-    async function embed(data) {
-        data = get_text(data.lines);
-        console.log(data);
-        const response = await fetch('/api/embed', {
-            method: 'POST',
-            body: JSON.stringify({ input: data }),
-            headers: {
-                'content-type': 'application/json'
-            }
-        });
-        // Get the response data as JSON
-        let output = await response.json();
-        console.log(output);
-        // covnert to array
-        output = Object.keys(output).map(function(key) {
-            return output[key];
-        });
-
-        console.log(output);
-
-        if(output[0] === 'Internal Error') {
-            return [];
-        }
-        return output[0].map((item) => {
-            return item.embedding;
-        });
-    }
-
-    const get_similarities = (jd_vec, other_vecs) => {
-
-        if(jd_vec.length == 0) {
-            return [];
-        }
-
-        let similarities = [];
-
-        for(let i = 0; i < other_vecs.length; i++) {
-            similarities.push(cosine_similarity(jd_vec, other_vecs[i]));
-        }
-
-        return similarities
-    }
+    let sims = [];
 
     const update_scores = async (lines) => {
         if(!updating) {
             updating = true;
+            // For rate-limiting ...
             await new Promise(r => setTimeout(r, 1000));
+
+            // Update project_data.lines
             project_data.lines = lines;
-            // Write await embed(project_data) to project_data.lines.scores
+
+            // Update scores
             let scores = await embed(project_data);
             project_data.lines.forEach((line, i) => {
                 line.scores = scores[i];
             });
             project_data = project_data;
+
             updating = false;
+
+            // Do again to get last line
             await new Promise(r => setTimeout(r, 1000));
             project_data.lines = lines;
             scores = await embed(project_data);
@@ -83,13 +40,14 @@
     }
 
     const update_description_and_bullets = (lines) => {
+        console.log("here");
         let description = [];
         let bullets = [];
         for(let i = 0; i < lines.length; i++) {
             if(lines[i].toggled) {
-                bullets.push(lines[i]);
+                bullets.push(lines[i].text);
             } else {
-                description.push(lines[i]);
+                description.push(lines[i].text);
             }
         }
 
@@ -98,18 +56,15 @@
 
         project_data.description = description;
         project_data.bullets = bullets;
+        project_data = project_data;
     }
 
-    // Define an array of data to display in the grid
-    let rows = [
-      { id: 1, name: 'John Smith', date: '2022-01-01', checked: false },
-      { id: 2, name: 'Jane Doe', date: '2022-02-01', checked: false },
-      { id: 3, name: 'Bob Johnson', date: '2022-03-01', checked: false },
-    ];
   
     // Define a function to delete a row by ID
     function deleteRow(row_to_delete) {
-       rows = rows.filter(row => row !== row_to_delete);
+       project_data.lines = project_data.lines.filter(row => row !== row_to_delete);
+       project_data = project_data;
+       lines = project_data.lines;
     }
     
     onMount(async () => {
@@ -132,88 +87,109 @@
 
     $: update_scores(lines);
 
-    $: similarities = get_similarities($jd_scores, project_data.lines.map((line) => line.scores));
+    $: (
+        (j_s, p_d) => {
+            let similarities = get_similarities(j_s, project_data.lines.map((line) => line.scores));
+            project_data.lines.forEach((line, i) => {
+                line.similarities = similarities[i];
+            });
+            sims = similarities;
+        }
+    )($jd_scores, project_data);
 
     $: update_description_and_bullets(lines);
 </script>
 
-<!-- Pretty print data -->
-<h2 contenteditable="true" bind:textContent={project_data.name} />
-<h3 contenteditable="true" bind:textContent={project_data.date} />
-{#each lines as line}
-    <p contenteditable="true" bind:textContent={line.text} />
-    <input type="checkbox" bind:checked={line.toggled} />
-{/each}
-
-
-<!-- Show similarities -->
-{#each similarities as similarity}
-    <p>{similarity}</p>
-{/each}
-
-
-
-
-
   
-  <div class="my-grid">
-    <div class="my-grid__delete"></div>
-    <div class="my-grid__name-date">
-        <h2 contenteditable="true" bind:textContent={project_data.name} />
-        <h3 contenteditable="true" bind:textContent={project_data.date} />
-    </div>
-    <div class="my-grid__empty"></div>
-    <div class="my-grid__empty"></div>
-    <div class="my-grid__empty"></div>
-  
-    {#each rows as row}
-      <div class="my-grid__row">
-        <div class="my-grid__delete">
-          <input type="checkbox" on:change={() => deleteRow(row)} />
-        </div>
-        <div class="my-grid__name-date">{row.name} ({row.date})</div>
-        <div class="my-grid__checkboxes">
-          <input type="checkbox" bind:checked={row.checked} />
-        </div>
-        <div class="my-grid__empty"></div>
-        <div class="my-grid__empty"></div>
-        <div class="my-grid__empty"></div>
-      </div>
-    {/each}
+<div class="my-grid">
+<div class="my-grid__delete"></div>
+<div class="my-grid__name-date">
+    <h3 contenteditable="true" bind:textContent={project_data.name} />
+    <h4 contenteditable="true" bind:textContent={project_data.date} />
+</div>
 
+
+{#each lines as row, ind}
     <div class="my-grid__row">
-        <div class="my-grid__name-date">
-            <button on:click={
-                () => {
-                    rows.push({
-                    id: rows.length + 1,
-                    name: 'New Row',
-                    date: '2022-01-01',
-                    checked: false
-                    });
-                    rows = rows;
-            }}>+</button>
-        </div>
-      </div>
+    <div class="my-grid__delete">
+        <button on:click={() => {deleteRow(row)}} id={ind + 'delete' + project_data.id} />
+    </div>
+    <div class="my-grid__name-date" contenteditable="true" bind:textContent={row.text} />
+    <div class="my-grid__checkboxes-include">
+        <input type="checkbox" bind:checked={row.include} id={ind + 'include' + project_data.id}/>
+        <label class="empty-label-2" for={ind + 'include' + project_data.id}></label>
+    </div>
+    <div class="my-grid__checkboxes">
+        <input type="checkbox" bind:checked={row.toggled} id={ind + project_data.id}/>
+        <label class="empty-label" for={ind + project_data.id}></label>
+    </div>
+    <div class="my-grid__empty">{(typeof sims[ind] != "undefined") ? sims[ind].toFixed(2) : '-'}</div>
+    </div>
+{/each}
+
+<div class="my-grid__row">
+    <div class="my-grid__name-date">
+        <button on:click={
+            () => {
+                project_data.lines.push({
+                toggled: true,
+                text: "New line"
+                });
+                project_data = project_data;
+        }}>+</button>
+    </div>
+    </div>
   </div>
 
 
 
 <!-- MyGrid.css -->
 <style>
+    .empty-label, .empty-label-2 {
+        width: 100%;
+        height: 100%;
+        display: block;
+        background-color: whitesmoke;
+    }
+    input[type=checkbox]{
+        display: none;
+    }
 
-    h2 {
-        display: inline;
+    input[type=checkbox]:checked + .empty-label{
+        background-color: paleturquoise;
+    }
+
+    input[type=checkbox]:checked + .empty-label-2{
+        background-color: palegreen;
+    }
+
+    .my-grid__delete button:hover {
+        background-color: salmon;
+    }
+    .my-grid__delete button {
+        width: calc(100% - 0.5rem);
+        height: 100%;
+        display: block;
+        background-color: whitesmoke;
+        border: none;
+
+    }
+
+
+
+
+
+    h3 {
+        margin: 0;
         margin-right: 3rem;
     }
-    h3 {
-        display: inline;
+    h4 {
+        margin: 0;
     }
     .my-grid {
       display: grid;
       grid-template-columns: 1rem 1fr 1rem 1rem 1rem 1rem;
-      grid-gap: 10px;
-      border: 1px solid grey; /* Add a grey border around the grid */
+      border: 5px solid transparent; /* Add a grey border around the grid */
     }
   
     .my-grid__delete {
@@ -223,23 +199,31 @@
     .my-grid__name-date {
       grid-column: 2;
       grid-row: 1;
+      display: flex;
+      align-items: center;
     }
-  
-    .my-grid__checkboxes {
+
+    .my-grid__checkboxes-include {
       grid-column: 3;
     }
   
-    .my-grid__empty {
+    .my-grid__checkboxes {
       grid-column: 4;
+    }
+  
+    .my-grid__empty {
+      grid-column: 5;
+      text-align: center;
     }
   
     .my-grid__row {
       display: grid;
-      grid-template-columns: 1rem 1fr 1rem 1rem 1rem 1rem;
-      grid-gap: 10px;
-      border-top: 1px solid grey; /* Add a grey top border to each row */
+      grid-template-columns: 1.6rem 1fr 1.5rem 1.5rem 3rem 2rem 1rem;
+      border-top: 5px solid transparent; /* Add a grey top border to each row */
       /* span entirerow */
       grid-column: 1 / -1;
+      height: 1.5rem;
+      grid-template-rows: 1.5rem;
     }
   
     .my-grid__row:first-child {
@@ -247,7 +231,7 @@
     }
   
     .my-grid__row:last-child {
-      border-bottom: 1px solid grey; /* Add a grey bottom border to the last row */
+      border-bottom: 1px solid transparent; /* Add a grey bottom border to the last row */
     }
   
     .my-grid__row input[type="checkbox"] {
