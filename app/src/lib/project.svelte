@@ -1,14 +1,16 @@
 <script>
     import { onMount } from 'svelte';
     import { jd_scores } from '$lib/stores.js';
-    import { embed, get_text, get_similarities} from '$lib/project_helpers.js'
+    import { embed, get_text, get_similarities, get_length } from '$lib/project_helpers.js'
     // random string 10 char long
     export let project_data = {};
-
+    export let delete_func = () => {};
 
     let lines = project_data.lines;
     let updating = false;
     let sims = [];
+    let final_angle;
+    let final_length;
 
     const update_scores = async (lines) => {
         if(!updating) {
@@ -44,10 +46,12 @@
         let description = [];
         let bullets = [];
         for(let i = 0; i < lines.length; i++) {
-            if(lines[i].toggled) {
-                bullets.push(lines[i].text);
-            } else {
-                description.push(lines[i].text);
+            if(lines[i].include) {
+                if(lines[i].toggled) {
+                    bullets.push(lines[i].text);
+                } else {
+                    description.push(lines[i].text);
+                }
             }
         }
 
@@ -89,6 +93,7 @@
 
     $: (
         (j_s, p_d) => {
+            console.log(project_data);
             let similarities = get_similarities(j_s, project_data.lines.map((line) => line.scores));
             project_data.lines.forEach((line, i) => {
                 line.similarities = similarities[i];
@@ -97,17 +102,49 @@
         }
     )($jd_scores, project_data);
 
+    $: (
+        (j_s, p_d) => {
+            let scores = project_data.lines.map((line) => line.scores);
+            // If any score is undefined, then return
+            if(scores.some((score) => typeof score === 'undefined')) {
+                return;
+            }
+            // Sum up all the scores using element-wise addition
+            let sum = scores.reduce((a, b) => a.map((x, i) => x + b[i]));
+            final_angle = get_similarities(j_s, [sum])[0];
+
+            // Get length of sum in direction of jd_scores
+            final_length = get_length(j_s, sum);
+
+        }
+    )($jd_scores, project_data);
+
     $: update_description_and_bullets(lines);
+
+    // $: console.log($jd_scores);
 </script>
 
   
 <div class="my-grid">
-<div class="my-grid__delete"></div>
+<div class="my-grid__delete">
+    <button on:click={delete_func} id={project_data.id + 'delete'} />
+</div>
 <div class="my-grid__name-date">
     <h3 contenteditable="true" bind:textContent={project_data.name} />
     <h4 contenteditable="true" bind:textContent={project_data.date} />
 </div>
+<div class="my-grid__checkboxes-include">
+    <input type="checkbox" bind:checked={project_data.master_include} id={project_data.id + 'master-include'}/>
+    <label class="empty-label-3" for={project_data.id + 'master-include'}></label>
+</div>
 
+<div class="my-grid__top-corner">
+    {(typeof final_length != "undefined") ? final_length.toFixed(2) : '-'}
+</div>
+
+<div class="my-grid__status" >
+    {(typeof final_angle != "undefined") ? final_angle.toFixed(2) : '-'}
+</div>
 
 {#each lines as row, ind}
     <div class="my-grid__row">
@@ -128,7 +165,7 @@
 {/each}
 
 <div class="my-grid__row">
-    <div class="my-grid__name-date">
+    <div class="my-grid__name-date center">
         <button on:click={
             () => {
                 project_data.lines.push({
@@ -145,7 +182,8 @@
 
 <!-- MyGrid.css -->
 <style>
-    .empty-label, .empty-label-2 {
+    
+    .empty-label, .empty-label-2, .empty-label-3 {
         width: 100%;
         height: 100%;
         display: block;
@@ -160,9 +198,12 @@
     }
 
     input[type=checkbox]:checked + .empty-label-2{
-        background-color: palegreen;
+        background-color: palegoldenrod;
     }
 
+    input[type=checkbox]:checked + .empty-label-3{
+        background-color: palegreen;
+    }
     .my-grid__delete button:hover {
         background-color: salmon;
     }
@@ -176,9 +217,6 @@
     }
 
 
-
-
-
     h3 {
         margin: 0;
         margin-right: 3rem;
@@ -188,8 +226,10 @@
     }
     .my-grid {
       display: grid;
-      grid-template-columns: 1rem 1fr 1rem 1rem 1rem 1rem;
+      grid-template-columns: 1.6rem 1fr 1.5rem 1.5rem 3rem 1rem 3rem;
       border: 5px solid transparent; /* Add a grey border around the grid */
+      /* gerogia font */
+      font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
     }
   
     .my-grid__delete {
@@ -201,6 +241,44 @@
       grid-row: 1;
       display: flex;
       align-items: center;
+    }
+
+    .my-grid__name-date.center {
+        justify-content: center;
+    }
+
+    .my-grid__top-corner {
+        grid-column: 7;
+        grid-row: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        background-color:black;
+    }
+
+    .my-grid__status{
+        grid-column: 7;
+        grid-row: 2;
+        background-color: grey;
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .my-grid__name-date.center button {
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 50%;
+        border: none;
+        background-color: whitesmoke;
+        color: grey;
+    }
+
+    .my-grid__name-date.center button:hover {
+        background-color: palegreen;
+        color: grey;
     }
 
     .my-grid__checkboxes-include {
@@ -218,12 +296,12 @@
   
     .my-grid__row {
       display: grid;
-      grid-template-columns: 1.6rem 1fr 1.5rem 1.5rem 3rem 2rem 1rem;
+      grid-template-columns: 1.6rem 1fr 1.5rem 1.5rem 3rem 1rem;
       border-top: 5px solid transparent; /* Add a grey top border to each row */
       /* span entirerow */
-      grid-column: 1 / -1;
-      height: 1.5rem;
-      grid-template-rows: 1.5rem;
+      grid-column: 1 / -2;
+      min-height: 1.5rem;
+      grid-template-rows: max(1.5rem, min-content);
     }
   
     .my-grid__row:first-child {

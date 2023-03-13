@@ -52,3 +52,22 @@ export const get_similarities = (jd_vec, other_vecs) => {
     return similarities
 }
 
+
+export const get_length = (vec1, vec2) => {
+    // Get length of projection of vec2 onto vec1
+    let dotProduct = 0;
+    let magnitude1 = 0;
+    let magnitude2 = 0;
+
+    if(typeof vec2 =="undefined" || typeof vec1 == "undefined" || vec1.length != vec2.length) {
+        return 0;
+    }
+
+    for (let i = 0; i < vec1.length; i++) {
+        dotProduct += vec1[i] * vec2[i];
+        magnitude1 += vec1[i] ** 2;
+        magnitude2 += vec2[i] ** 2;
+    }
+
+    return dotProduct / Math.sqrt(magnitude1);
+}

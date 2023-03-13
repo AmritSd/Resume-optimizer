@@ -6,6 +6,9 @@ export function cosine_similarity(vector1, vector2) {
     let magnitude1 = 0;
     let magnitude2 = 0;
     
+    if(typeof vector2 =="undefined" || typeof vector1 == "undefined" || vector1.length != vector2.length) {
+        return 0;
+    }
     for (let i = 0; i < vector1.length; i++) {
         dotProduct += vector1[i] * vector2[i];
         magnitude1 += vector1[i] ** 2;

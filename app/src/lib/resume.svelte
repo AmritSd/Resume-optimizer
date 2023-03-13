@@ -1,11 +1,15 @@
 <script>
     export let project_data = {};
-
+	export let skill_data = {};
+	export let objective_data = {};
+	export let additional_courses = [];
+	export let font_size = "1rem";
+	export let font_size_small = "0.9rem";
 </script>
 
 
 
-<div class="container">
+<div class="container" style="--f-size: {font_size}; --f-size-small: {font_size_small};">
 	<!-- Introduction section -->
 	<div class="section">
 		<div class="section-header">
@@ -26,13 +30,18 @@
 			</div>
 		</div>
 
-		<div class="section-content">
-			<div class="objective">
-				<p>
-					Seeking a challenging role in the field of business analytics and finance, utilizing my programming skills and background in computer science.
-				</p>
+		{#if typeof objective_data != 'undefined' && objective_data?.bullets != 'undefined' && objective_data?.master_include === true}
+			<div class="section-content">
+				<div class="objective">
+					{#each objective_data?.bullets as line, ind}
+						{#if line}
+							<p>{line}</p>
+						{/if}
+					{/each}
+				</div>
 			</div>
-		</div>
+		{/if}
+
 	</div>
 
 	<div class="section">
@@ -69,18 +78,18 @@
         <hr />
 		<div class="section-content">
 			<ul class="mx-4 my-1 skills-list">
-				<li class="list-disc">
-				  <span class="skills-list-title">Web Development :</span> 
-				  <span class="skills-list-body">PHP, NodeJs, JavaScript (React, Svelte, JQuery), SQL, HTML</span>
-				</li>
-				<li class="list-disc">
-				  <span class="skills-list-title">Other Programming Languages :</span> 
-				  <span class="skills-list-body">Python, C/C++</span>
-				</li>
-				<li class="list-disc">
-				  <span class="skills-list-title">Machine Learning :</span> 
-				  <span class="skills-list-body">Pandas, Tensorflow, PyTorch</span>
-				</li>
+				{#each skill_data as skill_group}
+					{#if skill_group?.master_include}
+						<li class="list-disc">
+							<span class="skills-list-title">{skill_group?.name}</span> 
+							<span class="skills-list-body">
+								{#each skill_group?.bullets as skill, ind}
+									{skill}{#if (skill_group?.bullets?.length - 1) != ind},&nbsp;{/if}
+								{/each}
+							</span>
+						</li>
+					{/if}
+				{/each}
 			</ul>
 		</div>
 	</div>
@@ -112,43 +121,67 @@
         <hr />
 		<div class="section-content">
             {#each project_data as project}
-                <div class="project-header">
-                    <div class="project-title">{project.name}</div>
-                    <div class="project-date">{project.date}</div>
-                </div>
+				{#if project?.master_include}
+					<div class="project-header">
+						<div class="project-title">{project.name}</div>
+						<div class="project-date">{project.date}</div>
+					</div>
 
-                {#if project.subtitle}
-                    <div class="project-subtitle">{project.subtitle}</div>
-                {/if}
+					{#if project.subtitle}
+						<div class="project-subtitle">{project.subtitle}</div>
+					{/if}
 
-                <div class="project-description">
-                    {#if project.description}<p>{project.description}</p>{/if}
-                    {#if project.bullets}
-                        <ul class="mx-4 my-2">
-                            {#each project.bullets as bullet}
-                                <li class="list-disc">{bullet}</li>
-                            {/each}
-                        </ul>
-                    {/if}
-                </div>
+					<div class="project-description">
+						{#if project.description}<p>{project.description}</p>{/if}
+						{#if project.bullets}
+							<ul class="mx-4 my-2">
+								{#each project.bullets as bullet}
+									<li class="list-disc">{bullet}</li>
+								{/each}
+							</ul>
+						{/if}
+					</div>
+				{/if}
             {/each}
 		</div>
 	</div>
 
 
 	<!-- Additional courses section -->
-	<div class="section">
-		<div class="section-header prose prose-2xl"><mark>Additional Courses (Verified courses from MIT via edX)</mark></div>
-        <hr />
-		<div class="section-content">
-			<ul class="project-description">
-				<li class="list-disc">Foundations of Modern Finance I  (Dec 2020)</li>
-				<li class="list-disc">Foundations of Modern Finance II (Apr 2021)</li>
-				<li class="list-disc">Financial Accounting (July 2021)</li>
-				<li class="list-disc">Mathematical Methods for Quantitative Finance (Sept 2021)</li>
-			</ul>
+	
+	{#if additional_courses?.length > 0 && additional_courses.some(project => project?.master_include) == true}
+		<div class="section">
+			<div class="section-header prose prose-2xl"><mark>Relevant Coursework</mark></div>
+			<hr />
+			<div class="section-content">
+				{#each additional_courses as project}
+				{#if project?.master_include}
+					{#if project.name != "" || project.date != ""}
+						<div class="project-header">
+							<div class="project-title">{project.name}</div>
+							<div class="project-date">{project.date}</div>
+						</div>
+					{/if}
+
+					{#if project.subtitle}
+						<div class="project-subtitle">{project.subtitle}</div>
+					{/if}
+
+					<div class="project-description">
+						{#if project.description}<p>{project.description}</p>{/if}
+						{#if project.bullets}
+							<ul class="mx-4 my-2">
+								{#each project.bullets as bullet}
+									<li class="list-disc">{bullet}</li>
+								{/each}
+							</ul>
+						{/if}
+					</div>
+				{/if}
+			{/each}
+			</div>
 		</div>
-	</div>
+	{/if}
 
 	<!-- Work eligibility section -->
 	<!-- <div class="section">
@@ -163,6 +196,8 @@
 	/* Add your CSS styles here */
     @page {
         margin: 0.5rem;
+		margin-top: 1rem;
+		margin-bottom: 0rem;
     }
 	@media print {
 		.container {
@@ -170,27 +205,41 @@
 			padding: 0rem 0.5rem !important;
 		}
 
-		.section {
-			margin-bottom: 15px !important;
-		}
-
-		.prose.prose-2xl {
-			font-size: 1.125rem !important;
-		}   
 		.prose.prose-2xl.prose.prose-2xl.hero-name {
 			font-size: 2rem !important;
+		} 
+		.container::before {
+			border: none !important;
 		}
 	}
 	.container {
-		max-width: 800px;
+		--f-size: 1rem;
+		--f-size-small: 0.9rem;
+		max-width: calc(8.5in - 1rem);
 		margin: 0 auto;
-		padding: 2rem 1rem;
+		padding: 0rem 0.5rem;
 		text-align: left;
         /* Georgia */
-        font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        /* font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; */
+		/* font family calibri */
+		font-family: 'Calibri', sans-serif;
+		font-size: var(--f-size);
+		position: relative;
+
+	}
+
+	.container::before{
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 8.5in;
+		height: calc(11in - 1rem);
+		border-bottom: 2px solid red;
+		z-index: -1;
 	}
 	.section {
-		margin-bottom: 20px;
+		margin-bottom: 15px;
 	}
 
     hr {
@@ -218,7 +267,7 @@
 		color: #224444;
 	}
 	.prose.prose-2xl {
-		font-size: 1.25rem;
+		font-size: 1.125rem;
 	}
 
 	.prose.prose-2xl.hero-name {
@@ -249,7 +298,7 @@
 		background-color: #fad7b7;
 		border-radius: 16px;
 		padding: 5px 12px;
-		font-size:10.5pt;
+		font-size: var(--f-size-small);
 		font-weight: 400;
 		line-height: 1.25;
 		margin-right: 10px;
@@ -263,7 +312,7 @@
 
 	.objective {
 		margin-top: 0.5rem;
-		font-size:10.5pt;
+		font-size:var(--f-size-small);
         font-size: 11pt;
 		font-weight: 400;
 	}
@@ -280,16 +329,16 @@
 		flex-grow: 1;
 	}
 	.education-subtitle {
-		font-size:10.5pt;
+		font-size:var(--f-size-small);
 		font-weight: 400;
 	}
 	.education-gpa {
-		font-size:10.5pt;
+		font-size:var(--f-size-small);
 		font-weight: 400;
 		color: grey;
 	}
 	.education-date {
-		font-size:10.5pt;
+		font-size:var(--f-size-small);
 		font-weight: 400;
 		color: grey;
 		text-align: right;
@@ -300,13 +349,13 @@
 		justify-content: space-between;
 	}
 	.work-subtitle {
-		font-size:10.5pt;
+		font-size:var(--f-size-small);
 		font-weight: 400;
 		margin-bottom: 2px;
 		color: grey;
 	}
 	.work-date {
-		font-size:10.5pt;
+		font-size:var(--f-size-small);
 		font-weight: 400;
 		color: grey;
 		text-align: right;
@@ -314,7 +363,7 @@
 		/* flex-shrink: 0; */
 	}
 	.work-description {
-		font-size:10.5pt;
+		font-size:var(--f-size-small);
 		font-weight: 400;
 		margin-top: 5px;
 	}
@@ -330,7 +379,7 @@
 		flex-grow: 1;
 	}
 	.project-date {
-		font-size:10.5pt;
+		font-size:var(--f-size-small);
 		font-weight: 400;
 		color: grey;
 		flex-grow: 1;
@@ -338,24 +387,24 @@
 	}
 
 	.project-subtitle {
-		font-size:10.5pt;
+		font-size:var(--f-size-small);
 		font-weight: 400;
 		margin-bottom: 2px;
 		color: grey;
 	}
 	.project-description {
-		font-size:10.5pt;
+		font-size:var(--f-size-small);
 		font-weight: 400;
 		/* margin-top: 5px; */
 		margin-bottom: 1rem;
 	}
 
 	.skills-list {
-		font-size:10.5pt;
+		font-size:var(--f-size-small);
 	}
 
 	.skills-list-body{
-		font-size:10.5pt;
+		font-size:var(--f-size-small);
 		font-weight: 400;
 		margin-bottom: 2px;
 		color: grey;
@@ -364,7 +413,7 @@
 	.skills-list-title {
 		/* font-weight: 500; */
 		margin-bottom: 2px;
-		font-size:10.5pt;
+		font-size:var(--f-size-small);
 		color: black;
 	}
 
