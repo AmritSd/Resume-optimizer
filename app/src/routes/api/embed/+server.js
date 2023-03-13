@@ -1,7 +1,7 @@
 // my-backend-function.js
 import { json } from '@sveltejs/kit';
 import { Configuration, OpenAIApi } from "openai";
-import { apiKey } from '$lib/server/api_key.server';
+import { apiKey } from '$lib/server/api_key.server.js';
 
 
 /** @type {import('./$types').RequestHandler} */
