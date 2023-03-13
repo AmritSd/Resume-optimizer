@@ -1,7 +1,9 @@
 // my-backend-function.js
 import { json } from '@sveltejs/kit';
 import { Configuration, OpenAIApi } from "openai";
-import { apiKey } from '$lib/api_key.server';
+import { apiKey } from '$lib/server/api_key.server';
+
+
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ request }) {
     const { input } = await request.json();
