@@ -1,34 +1,12 @@
 <script>
     import Project from '$lib/project.svelte';
     import { jd_scores } from '$lib/stores.js';
-    import { localStore } from '$lib/data_store.js';
+    import { app_data } from '$lib/data_store.js';
 	import { onMount } from 'svelte';
-    import Resume from '$lib/resume.svelte';
+    import Resume from '$lib/resume_2.svelte';
     // Define a variable to store the user input
     let inputValue = '';
     let export_file_name = '';
-
-    let app_data_init = {
-        projects : [],
-        skills : [],
-        objective : {
-            name : "",
-            include : true,
-            id : "",
-            lines : [
-                {
-                    text : "",
-                    toggled: true,
-                    include: true,
-                }
-            ],
-        },
-        additional_courses : [],
-        font_size : "12pt",
-        font_size_small : "11pt"
-    }   
-
-    let app_data = localStore('app_data_8', app_data_init);
 
     // Define a function to handle the form submission
     async function handleSubmit() {
@@ -140,6 +118,37 @@
         $app_data = $app_data;
     }
 
+    function add_work() {
+        let id = Math.random().toString(36).substr(2, 9);
+        $app_data.work_data.push({
+            name : "Company Name",
+            id:  id,
+            date : "YYYY-MM-DD",
+            master_include : true,
+            lines : [
+                {
+                    text : "Position",
+                    toggled: false,
+                    include: true,
+                },
+                {
+                    text : "Work line 1",
+                    toggled: true,
+                    include: true,
+
+                },
+                {
+                    text : "Work line 2",
+                    toggled: true,
+                    include: true,
+                }
+            ],
+            scores : []
+        });
+
+        $app_data = $app_data;
+    }
+
     function remove_project(project_data) {
         $app_data.projects = $app_data.projects.filter((project) => {
             return project.id != project_data.id;
@@ -159,6 +168,14 @@
     function remove_additional_course(project_data) {
         $app_data.additional_courses = $app_data.additional_courses.filter((project) => {
             return project.id != project_data.id;
+        });
+
+        $app_data = $app_data;
+    }
+
+    function remove_work_data(work_data) {
+        $app_data.work_data = $app_data.work_data.filter((work) => {
+            return work.id != work_data.id;
         });
 
         $app_data = $app_data;
@@ -198,11 +215,11 @@
     }
 
     onMount(() => {
-        // Load data from local storage
-        // $app_data.font_size = "1rem";
-        // $app_data.font_size_small = "0.9rem";
     });
 
+
+
+    // $: console.log($app_data.name);
 </script>
 
 <div class="flex">
@@ -213,17 +230,29 @@
             <button on:click={handleSubmit}>Submit</button>
         </form>
 
+
         <form class="import-export">
             <input type="text" placeholder="Resume name" bind:value={export_file_name}/>&nbsp;
             <button on:click={() => {export_data()}}>Export</button>
             &nbsp;Or&nbsp;
             <button on:click={() => {import_data()}}>Import</button>
         </form>
+
+        <h2 class="projects-header">Personal details</h2>
+        {#if typeof $app_data != 'undefined' && $app_data.name != 'undefined'} 
+            <textarea bind:value={$app_data.name} placeholder="Name" class="personal-details" rows="1" draggable="false"/>
+        {/if}
+
+        <h2 class="projects-header">Contact info</h2>
+        {#if typeof $app_data != 'undefined' && $app_data.chips != 'undefined'} 
+            <Project bind:project_data={$app_data.chips} />
+        {/if}
     
         <h2 class="projects-header">Objective</h2>
         {#if typeof $app_data != 'undefined' && $app_data.objective != 'undefined'} 
             <Project bind:project_data={$app_data.objective} />
         {/if}
+
 
 
         <h2 class="projects-header">Skills</h2>
@@ -235,6 +264,13 @@
         {/if}
         <button on:click={add_skills} class="add-project">Add</button>
 
+        <h2 class="projects-header">Work experience</h2>
+        {#if typeof $app_data != 'undefined' && $app_data.work_data != 'undefined'}
+            {#each $app_data.work_data as project_data}
+                <Project bind:project_data={project_data} delete_func={() => {remove_work_data(project_data)}}/>
+            {/each}
+        {/if}
+        <button on:click={add_work} class="add-project">Add</button>
 
         <h2 class="projects-header">Projects</h2>
         {#if typeof $app_data != 'undefined' && $app_data.projects != 'undefined'}
@@ -269,7 +305,8 @@
     </div>
     
     <div class="right">
-        <Resume project_data={$app_data?.projects} skill_data={$app_data?.skills} objective_data={$app_data?.objective} additional_courses={$app_data?.additional_courses} font_size={$app_data?.font_size} font_size_small={$app_data?.font_size_small}/>
+        <!-- <Resume project_data={$app_data?.projects} skill_data={$app_data?.skills} objective_data={$app_data?.objective} additional_courses={$app_data?.additional_courses} font_size={$app_data?.font_size} font_size_small={$app_data?.font_size_small}/> -->
+        <Resume />
     </div>
 </div>
 
@@ -324,6 +361,7 @@
         width: 100%;
         height: 20rem;
         font: inherit;
+        resize: none;
     }
     .jd-form button {
         width: 5rem;
@@ -349,6 +387,12 @@
     }
     .import-export button:hover {
         background-color: palegoldenrod;
+    }
+
+    .personal-details {
+        width: calc(100% - 1rem);
+        font: inherit;
+        resize: none;
     }
     .add-project {
         margin-top: 1rem;

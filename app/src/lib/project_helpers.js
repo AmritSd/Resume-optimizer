@@ -8,6 +8,7 @@ export function get_text(lines) {
 }
 
 export async function embed(data) {
+    console.log("calling api...");
     data = get_text(data.lines);
     console.log(data);
     const response = await fetch('/api/embed', {

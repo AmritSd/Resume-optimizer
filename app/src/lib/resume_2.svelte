@@ -23,12 +23,14 @@
         font_size_small : "11pt",
         name : "",
         chips : {},
+		work_data : [],
     }   
 
 	let project_data = app_data_init.projects;
 	let skill_data = app_data_init.skills;
 	let objective_data = app_data_init.objective;
 	let additional_courses = app_data_init.additional_courses;
+	let work_data = app_data_init.work_data;
 	let font_size = "12pt";
 	let font_size_small = "10pt";
 	let resume_name = "Amrit Sandhu";
@@ -42,6 +44,7 @@
 	$: skill_data = $app_data?.skills;
 	$: objective_data = $app_data?.objective;
 	$: additional_courses = $app_data?.additional_courses;
+	$: work_data = $app_data?.work_data;
 	$: font_size = $app_data?.font_size;
 	$: font_size_small = $app_data?.font_size_small;
 	$: resume_name = $app_data?.name;
@@ -95,7 +98,7 @@
 
 
 	<div class="section">
-		<div class="section-header prose prose-2xl"><mark>Education</mark></div>
+		<div class="section-header prose prose-2xl"><mark>EDUCATION</mark></div>
         <hr />
 		<div class="section-content">
 			<div class="education-entry">
@@ -124,7 +127,7 @@
 
 
 	<div class="section">
-		<div class="section-header prose prose-2xl"><mark>Skills and Programming Languages</mark></div>
+		<div class="section-header prose prose-2xl"><mark>SKILLS</mark></div>
         <hr />
 		<div class="section-content">
 			<ul class="mx-4 my-1 skills-list">
@@ -148,28 +151,39 @@
 
 	<!-- Work experience section -->
 	<div class="section">
-		<div class="section-header prose prose-2xl"><mark>Work Experience</mark></div>
+		<div class="section-header prose prose-2xl"><mark>WORK EXPERIENCE</mark></div>
 		<hr />
 		<div class="section-content">
-			<div class="work-entry">
-				<div class="work-title">Anunta Tech</div>
-				<div class="work-date">July 2021 - Dec 2021</div>
-			</div>
-			<div class="work-subtitle">Technology Intern</div>
-			<div class="work-description">
-				<ul class="mx-4 my-2">
-					<li class="list-disc">Worked on an experimental feature to predict problems with Virtual Machines using diagnostic data.</li>
-					<li class="list-disc">Processed the data using unsupervised machine learning using the Azure anomaly detection REST API.</li>
-					<li class="list-disc">The program will be integrated into their flagship Euvantage client monitoring software.</li>
-				</ul>
-			</div>
+			{#each work_data as project}
+				{#if project?.master_include}
+					<div class="work-entry">
+						<div class="work-title">{project.name}</div>
+						<div class="work-date">{project.date}</div>
+					</div>
+
+					{#if project.subtitle}
+						<div class="work-subtitle">{project.subtitle}</div>
+					{/if}
+
+					<div class="work-description">
+						{#if project.description}<p>{project.description}</p>{/if}
+						{#if project.bullets}
+							<ul class="mx-4 my-2">
+								{#each project.bullets as bullet}
+									<li class="list-disc">{bullet}</li>
+								{/each}
+							</ul>
+						{/if}
+					</div>
+				{/if}
+			{/each}
 		</div>
 	</div>
 
 		<!-- Projects section -->
 	{#if typeof project_data != 'undefined' && project_data?.length > 0}
 		<div class="section">
-			<div class="section-header prose prose-2xl"><mark>Projects</mark></div>
+			<div class="section-header prose prose-2xl"><mark>PROJECTS</mark></div>
 			<hr />
 			<div class="section-content">
 				{#each project_data as project}
@@ -202,7 +216,7 @@
 		
 	{#if typeof additional_courses != "undefined" && additional_courses?.length > 0 && additional_courses.some(project => project?.master_include) == true}
 	<div class="section">
-		<div class="section-header prose prose-2xl"><mark>Relevant Coursework</mark></div>
+		<div class="section-header prose prose-2xl"><mark>RELEVANT COURSEWORK</mark></div>
 		<hr />
 		<div class="section-content">
 			{#each additional_courses as project}
@@ -258,6 +272,7 @@
 	.container {
 		--f-size: 1rem;
 		--f-size-small: 0.9rem;
+		--color-subtitle: #666;
 		max-width: calc(8.5in - 1rem);
 		margin: 0 auto;
 		padding: 0rem 0.5rem;
@@ -291,23 +306,26 @@
         border: 0;
         border-top: 1px solid #ccc; 
         padding: 0;
-        margin: 0.2rem 0;
+        margin: 0rem 0rem 0.2rem 0;
+		position: relative;
     }
 
+
 	mark {
-		margin: 0 -0.4em;
+		/* margin: 0 -0.4em; */
 		padding: 0.1em 0.4em;
-		border-radius: 0.8em 0.3em;
-		background: transparent;
-		background-image: linear-gradient(
+		/* border-radius: 0.8em 0.3em; */
+		background: #336666;
+		/* background-image: linear-gradient(
 			to right,
 			rgba(0, 102, 255, 0.1),
 			rgba(172, 208, 255, 0.5) 4%,
 			rgba(201, 223, 252, 0.4) 96%
-		);
+		); */
+
 		-webkit-box-decoration-break: clone;
 		box-decoration-break: clone;
-		color: #224444;
+		color: white;
 	}
 	.prose.prose-2xl {
 		font-size: 1.125rem;
@@ -339,8 +357,8 @@
 		display: flex;
 		align-items: center;
 		background-color: #fad7b7;
-		border-radius: 16px;
-		padding: 5px 12px;
+		/* border-radius: 16px; */
+		padding: 5px 5px;
 		font-size: var(--f-size-small);
 		font-weight: 400;
 		line-height: 1.25;
@@ -378,12 +396,12 @@
 	.education-gpa {
 		font-size:var(--f-size-small);
 		font-weight: 400;
-		color: grey;
+		color: var(--color-subtitle)
 	}
 	.education-date {
 		font-size:var(--f-size-small);
 		font-weight: 400;
-		color: grey;
+		color: var(--color-subtitle);
 		text-align: right;
 	}
 
@@ -395,12 +413,12 @@
 		font-size:var(--f-size-small);
 		font-weight: 400;
 		margin-bottom: 2px;
-		color: grey;
+		color: var(--color-subtitle);
 	}
 	.work-date {
 		font-size:var(--f-size-small);
 		font-weight: 400;
-		color: grey;
+		color: var(--color-subtitle);
 		text-align: right;
 		flex-grow: 1;
 		/* flex-shrink: 0; */
@@ -408,7 +426,8 @@
 	.work-description {
 		font-size:var(--f-size-small);
 		font-weight: 400;
-		margin-top: 5px;
+		margin-bottom: 1rem;
+		/* margin-top: 5px; */
 	}
 
 	.project-header {
@@ -424,7 +443,7 @@
 	.project-date {
 		font-size:var(--f-size-small);
 		font-weight: 400;
-		color: grey;
+		color: var(--color-subtitle);
 		flex-grow: 1;
 		text-align: right;
 	}
@@ -433,7 +452,7 @@
 		font-size:var(--f-size-small);
 		font-weight: 400;
 		margin-bottom: 2px;
-		color: grey;
+		color: var(--color-subtitle);
 	}
 	.project-description {
 		font-size:var(--f-size-small);
@@ -450,7 +469,7 @@
 		font-size:var(--f-size-small);
 		font-weight: 400;
 		margin-bottom: 2px;
-		color: grey;
+		color: var(--color-subtitle);
 	}
 
 	.skills-list-title {

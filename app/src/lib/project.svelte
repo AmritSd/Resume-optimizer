@@ -93,7 +93,6 @@
 
     $: (
         (j_s, p_d) => {
-            console.log(project_data);
             let similarities = get_similarities(j_s, project_data.lines.map((line) => line.scores));
             project_data.lines.forEach((line, i) => {
                 line.similarities = similarities[i];
