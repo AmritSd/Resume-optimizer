@@ -150,7 +150,9 @@
     <div class="my-grid__delete">
         <button on:click={() => {deleteRow(row)}} id={ind + 'delete' + project_data.id} />
     </div>
-    <div class="my-grid__name-date" contenteditable="true" bind:textContent={row.text} />
+    <div class="my-grid__name-date">
+        <div class="child" contenteditable="true" bind:textContent={row.text} />
+    </div>
     <div class="my-grid__checkboxes-include">
         <input type="checkbox" bind:checked={row.include} id={ind + 'include' + project_data.id}/>
         <label class="empty-label-2" for={ind + 'include' + project_data.id}></label>
@@ -187,6 +189,9 @@
         height: 100%;
         display: block;
         background-color: whitesmoke;
+    }
+    label:hover {
+        cursor: pointer;
     }
     input[type=checkbox]{
         display: none;
@@ -240,7 +245,23 @@
       grid-row: 1;
       display: flex;
       align-items: center;
+      justify-content: stretch;
+      /* margin-right: 0.5rem solid transparent; */
     }
+
+    .my-grid__name-date .child {
+        margin-right: 0.5rem;
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    .my-grid__name-date .child:focus {
+        background-color: palegoldenrod;
+        outline: 0px solid transparent;
+    }
+
+
 
     .my-grid__name-date.center {
         justify-content: center;
