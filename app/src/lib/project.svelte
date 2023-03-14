@@ -129,8 +129,8 @@
     <button on:click={delete_func} id={project_data.id + 'delete'} />
 </div>
 <div class="my-grid__name-date">
-    <h3 contenteditable="true" bind:textContent={project_data.name} />
-    <h4 contenteditable="true" bind:textContent={project_data.date} />
+    <h3 class="child" contenteditable="true" bind:textContent={project_data.name} />
+    <h4 class="child" contenteditable="true" bind:textContent={project_data.date} />
 </div>
 <div class="my-grid__checkboxes-include">
     <input type="checkbox" bind:checked={project_data.master_include} id={project_data.id + 'master-include'}/>
