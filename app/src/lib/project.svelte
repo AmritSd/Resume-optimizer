@@ -254,6 +254,7 @@
         height: 100%;
         display: flex;
         align-items: center;
+        min-width: 1rem;
     }
 
     .my-grid__name-date .child:focus {
