@@ -230,14 +230,6 @@
             <button on:click={handleSubmit}>Submit</button>
         </form>
 
-
-        <form class="import-export">
-            <input type="text" placeholder="Resume name" bind:value={export_file_name}/>&nbsp;
-            <button on:click={() => {export_data()}}>Export</button>
-            &nbsp;Or&nbsp;
-            <button on:click={() => {import_data()}}>Import</button>
-        </form>
-
         <h2 class="projects-header">Personal details</h2>
         {#if typeof $app_data != 'undefined' && $app_data.name != 'undefined'} 
             <textarea bind:value={$app_data.name} placeholder="Name" class="personal-details" rows="1" draggable="false"/>
@@ -293,6 +285,14 @@
         
         <br>
         <br>
+        <form class="import-export">
+            <input type="text" placeholder="Resume name" bind:value={export_file_name}/>&nbsp;
+            <button on:click={() => {export_data()}}>Export</button>
+            &nbsp;Or&nbsp;
+            <button on:click={() => {import_data()}}>Import</button>
+        </form>
+        
+        <br>
         <form class="font-size-form">
             <label for="font-size">Font size</label>
             <input type="number" id="font-size" on:change={(e) => {$app_data.font_size = e.target.value + "pt"; $app_data = $app_data;}} value={$app_data?.font_size.replace("pt", "")}/>
@@ -322,7 +322,7 @@
     }
 
     :global(::-webkit-scrollbar-thumb) {
-    background-color: lightblue;    /* color of the scroll thumb */
+    background-color: palegoldenrod;    /* color of the scroll thumb */
     }
     :global(body) {
         overflow: hidden;
@@ -393,6 +393,11 @@
         width: calc(100% - 1rem);
         font: inherit;
         resize: none;
+        padding-bottom: 0.5rem;
+        padding-top: 0.5rem;
+        padding-left:0.5rem;
+        border:none;
+        background-color: #eee;
     }
     .add-project {
         margin-top: 1rem;

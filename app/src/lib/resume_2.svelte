@@ -150,35 +150,37 @@
 	</div>
 
 	<!-- Work experience section -->
-	<div class="section">
-		<div class="section-header prose prose-2xl"><mark>WORK EXPERIENCE</mark></div>
-		<hr />
-		<div class="section-content">
-			{#each work_data as project}
-				{#if project?.master_include}
-					<div class="work-entry">
-						<div class="work-title">{project.name}</div>
-						<div class="work-date">{project.date}</div>
-					</div>
+	{#if typeof project_data != 'undefined' && project_data?.length > 0}
+		<div class="section">
+			<div class="section-header prose prose-2xl"><mark>WORK EXPERIENCE</mark></div>
+			<hr />
+			<div class="section-content">
+				{#each work_data as project}
+					{#if project?.master_include}
+						<div class="work-entry">
+							<div class="work-title">{project.name}</div>
+							<div class="work-date">{project.date}</div>
+						</div>
 
-					{#if project.subtitle}
-						<div class="work-subtitle">{project.subtitle}</div>
-					{/if}
-
-					<div class="work-description">
-						{#if project.description}<p>{project.description}</p>{/if}
-						{#if project.bullets}
-							<ul class="mx-4 my-2">
-								{#each project.bullets as bullet}
-									<li class="list-disc">{bullet}</li>
-								{/each}
-							</ul>
+						{#if project.subtitle}
+							<div class="work-subtitle">{project.subtitle}</div>
 						{/if}
-					</div>
-				{/if}
-			{/each}
+
+						<div class="work-description">
+							{#if project.description}<p>{project.description}</p>{/if}
+							{#if project.bullets}
+								<ul class="mx-4 my-2">
+									{#each project.bullets as bullet}
+										<li class="list-disc">{bullet}</li>
+									{/each}
+								</ul>
+							{/if}
+						</div>
+					{/if}
+				{/each}
+			</div>
 		</div>
-	</div>
+	{/if}
 
 		<!-- Projects section -->
 	{#if typeof project_data != 'undefined' && project_data?.length > 0}
