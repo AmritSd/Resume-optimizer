@@ -484,7 +484,7 @@
     ul {
         display: block;
         list-style-type: disc;
-        margin-block-start: 0.2em;
+        margin-block-start: 0.1em;
         margin-block-end: 0.1em;
         margin-inline-start: 0px;
         margin-inline-end: 0px;
