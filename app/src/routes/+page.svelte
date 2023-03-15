@@ -245,7 +245,7 @@
     function handle_finalize_work_data(e) {
         $app_data.work_data = e.detail.items;
     }
-    
+
     onMount(() => {
     });
 
@@ -253,7 +253,7 @@
 
 <div class="flex">
     <div class="left">
-        <h2 class="projects-header">Resume optimizer</h2>
+        <h1 class="projects-header">Resume optimizer</h1>
         <form class="jd-form">
             <textarea bind:value={inputValue} placeholder="Job description..."/>
             <button on:click={handleSubmit}>Submit</button>
@@ -328,30 +328,36 @@
         
         <br>
         <br>
-        <form class="import-export">
-            <input type="text" placeholder="Resume name" bind:value={export_file_name}/>&nbsp;
-            <button on:click={() => {export_data()}}>Export</button>
-            &nbsp;Or&nbsp;
-            <button on:click={() => {import_data()}}>Import</button>
-        </form>
-        
-        <br>
-        <form class="font-size-form">
-            <label for="font-size">Font size</label>
-            <input type="number" id="font-size" on:change={(e) => {$app_data.font_size = e.target.value + "pt"; $app_data = $app_data;}} value={$app_data?.font_size.replace("pt", "")}/>
-            &nbsp;and&nbsp;
-            <label for="font-size-small">Font size small</label>
-            <input type="number" id="font-size-small" on:change={(e) => {$app_data.font_size_small = e.target.value + "pt"; $app_data = $app_data;}} value={$app_data?.font_size_small.replace("pt", "")}/>
-        </form>
-        <br>
-        <a href="/resume">Download resume</a>
+
     </div>
     
     <div class="right">
         <!-- <Resume project_data={$app_data?.projects} skill_data={$app_data?.skills} objective_data={$app_data?.objective} additional_courses={$app_data?.additional_courses} font_size={$app_data?.font_size} font_size_small={$app_data?.font_size_small}/> -->
         <Resume />
     </div>
+
 </div>
+
+<div class="flex-bottom">
+    <form class="import-export">
+        <input type="text" placeholder="Resume name" bind:value={export_file_name}/>&nbsp;
+        <button on:click={() => {export_data()}}>Export</button>
+        &nbsp;Or&nbsp;
+        <button on:click={() => {import_data()}}>Import</button>
+    </form>
+    
+    <form class="font-size-form">
+        <label for="font-size">Font size</label>
+        <input type="number" id="font-size" on:change={(e) => {$app_data.font_size = e.target.value + "pt"; $app_data = $app_data;}} value={$app_data?.font_size.replace("pt", "")}/>
+        &nbsp;and&nbsp;
+        <label for="font-size-small">Font size small</label>
+        <input type="number" id="font-size-small" on:change={(e) => {$app_data.font_size_small = e.target.value + "pt"; $app_data = $app_data;}} value={$app_data?.font_size_small.replace("pt", "")}/>
+    </form>
+    
+    <a href="/resume">Download resume</a>
+</div>
+
+
 
 
 
@@ -452,7 +458,7 @@
         background-color: palegoldenrod;
     }
 
-    h2 {
+    h1, h2 {
         font-weight: 500;
     }
 
@@ -464,5 +470,13 @@
     }
     .font-size-form input:hover {
         background-color: palegoldenrod;
+    }
+
+    .flex-bottom {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        margin-top: 1rem;
     }
 </style>
