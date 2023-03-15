@@ -2,6 +2,9 @@
     import { onMount } from 'svelte';
     import { jd_scores } from '$lib/stores.js';
     import { embed, get_text, get_similarities, get_length } from '$lib/project_helpers.js'
+    import { flip } from 'svelte/animate';
+    import { dndzone } from 'svelte-dnd-action';
+
     // random string 10 char long
     export let project_data = {};
     export let delete_func = () => {};
@@ -11,6 +14,7 @@
     let sims = [];
     let final_angle;
     let final_length;
+    const flipDurationMs = 200;
 
     const update_scores = async (lines) => {
         if(!updating) {
@@ -71,6 +75,14 @@
        lines = project_data.lines;
     }
     
+
+    function handle_consider(e) {
+        lines = e.detail.items;
+    }
+
+    function handle_finalize(e) {
+        lines = e.detail.items;
+    }
     onMount(async () => {
         // If scores are not empty, then don't embed
         // If any line in project_data.lines does not have a score, then embed
@@ -86,6 +98,15 @@
             project_data.lines.forEach((line, i) => {
                 line.scores = scores[i];
             });
+        }
+
+        if(lines.some(x => !x.id)) {
+                lines = lines.map((line) => {
+                    if(!line.id) {
+                        line.id = Math.random().toString(20);
+                    }
+                    return line;
+                });
         }
     });
 
@@ -137,6 +158,12 @@
     <label class="empty-label-3" for={project_data.id + 'master-include'}></label>
 </div>
 
+<div class="my-grid__drag-box">
+    <div class="my-grid__drag-handle">
+        <img src="/draggable.svg" alt="drag icon"/>
+    </div>
+</div>
+
 <div class="my-grid__top-corner">
     {(typeof final_length != "undefined") ? final_length.toFixed(2) : '-'}
 </div>
@@ -145,25 +172,29 @@
     {(typeof final_angle != "undefined") ? final_angle.toFixed(2) : '-'}
 </div>
 
-{#each lines as row, ind}
-    <div class="my-grid__row">
-    <div class="my-grid__delete">
-        <button on:click={() => {deleteRow(row)}} id={ind + 'delete' + project_data.id} />
-    </div>
-    <div class="my-grid__name-date">
-        <div class="child" contenteditable="true" bind:textContent={row.text} />
-    </div>
-    <div class="my-grid__checkboxes-include">
-        <input type="checkbox" bind:checked={row.include} id={ind + 'include' + project_data.id}/>
-        <label class="empty-label-2" for={ind + 'include' + project_data.id}></label>
-    </div>
-    <div class="my-grid__checkboxes">
-        <input type="checkbox" bind:checked={row.toggled} id={ind + project_data.id}/>
-        <label class="empty-label" for={ind + project_data.id}></label>
-    </div>
-    <div class="my-grid__empty">{(typeof sims[ind] != "undefined") ? sims[ind].toFixed(2) : '-'}</div>
-    </div>
-{/each}
+{#if !lines.some(x => !x.id)}
+    <section use:dndzone="{{items: lines, flipDurationMs, type: "row"}}"  on:consider={handle_consider} on:finalize={handle_finalize}>
+        {#each lines as row, ind (row.id)}
+            <div class="my-grid__row data-row" animate:flip="{{duration: flipDurationMs}}">
+                <div class="my-grid__delete">
+                    <button on:click={() => {deleteRow(row)}} id={row.id + 'delete' + project_data.id} />
+                </div>
+                <div class="my-grid__name-date">
+                    <div class="child" contenteditable="true" bind:textContent={row.text} />
+                </div>
+                <div class="my-grid__checkboxes-include">
+                    <input type="checkbox" bind:checked={row.include} id={row.id + 'include' + project_data.id}/>
+                    <label class="empty-label-2" for={row.id + 'include' + project_data.id}></label>
+                </div>
+                <div class="my-grid__checkboxes">
+                    <input type="checkbox" bind:checked={row.toggled} id={row.id + project_data.id}/>
+                    <label class="empty-label" for={row.id + project_data.id}></label>
+                </div>
+                <div class="my-grid__empty">{(typeof sims[ind] != "undefined") ? sims[ind].toFixed(2) : '-'}</div>
+            </div>
+        {/each}
+    </section>
+{/if}
 
 <div class="my-grid__row">
     <div class="my-grid__name-date center">
@@ -171,7 +202,8 @@
             () => {
                 project_data.lines.push({
                 toggled: true,
-                text: "New line"
+                text: "New line",
+                id :  Math.random().toString(36).substr(2, 9)
                 });
                 project_data = project_data;
         }}>+</button>
@@ -210,6 +242,7 @@
     }
     .my-grid__delete button:hover {
         background-color: salmon;
+        cursor: pointer;
     }
     .my-grid__delete button {
         width: calc(100% - 0.5rem);
@@ -234,6 +267,7 @@
       border: 5px solid transparent; /* Add a grey border around the grid */
       /* gerogia font */
       font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+      cursor: default;
     }
   
     .my-grid__delete {
@@ -255,6 +289,7 @@
         display: flex;
         align-items: center;
         min-width: 1rem;
+        cursor: text;
     }
 
     .my-grid__name-date .child:focus {
@@ -267,6 +302,15 @@
     .my-grid__name-date.center {
         justify-content: center;
     }
+
+    .my-grid__drag-box {
+        grid-column: 5;
+        cursor: move;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
 
     .my-grid__top-corner {
         grid-column: 7;
@@ -302,6 +346,7 @@
         color: grey;
     }
 
+
     .my-grid__checkboxes-include {
       grid-column: 3;
     }
@@ -313,18 +358,27 @@
     .my-grid__empty {
       grid-column: 5;
       text-align: center;
+      cursor: move;
     }
   
     .my-grid__row {
       display: grid;
       grid-template-columns: 1.6rem 1fr 1.5rem 1.5rem 3rem 1rem;
-      border-top: 5px solid transparent; /* Add a grey top border to each row */
+      border-bottom: 5px solid transparent; /* Add a grey top border to each row */
       /* span entirerow */
       grid-column: 1 / -2;
       min-height: 1.5rem;
       grid-template-rows: max(1.5rem, min-content);
     }
   
+    .my-grid__row.data-row:hover {
+        background-color: #f5f5f5;
+    }
+    section {
+        grid-column: 1 / -2;
+        border-top: 5px solid transparent; /* Add a grey top border to each row */
+
+    }
     .my-grid__row:first-child {
       border-top: none; /* Remove the top border from the first row */
     }

@@ -4,9 +4,13 @@
     import { app_data } from '$lib/data_store.js';
 	import { onMount } from 'svelte';
     import Resume from '$lib/resume_2.svelte';
+    import { dndzone } from 'svelte-dnd-action';
+    import { flip } from 'svelte/animate';
+
     // Define a variable to store the user input
     let inputValue = '';
     let export_file_name = '';
+    const flipDurationMs = 200;
 
     // Define a function to handle the form submission
     async function handleSubmit() {
@@ -26,7 +30,7 @@
     }
 
     function add_skills() {
-        let id = Math.random().toString(36).substr(2, 9);
+        let id = Math.random().toString(20);
         $app_data.skills.push({
             name : "Skill heading",
             id:  id,
@@ -37,17 +41,20 @@
                     text : "Skill 1",
                     toggled: true,
                     include: true,
+                    id: Math.random().toString(20),
                 },
                 {
                     text : "Skill 2",
                     toggled: true,
                     include: true,
+                    id: Math.random().toString(20),
 
                 },
                 {
                     text : "Skill 3",
                     toggled: true,
                     include: true,
+                    id: Math.random().toString(20),
                 }
             ],
             scores : []
@@ -57,7 +64,7 @@
     }
 
     function add_project() {
-        let id = Math.random().toString(36).substr(2, 9);
+        let id = Math.random().toString(20);
         $app_data.projects.push({
             name : "Project Name",
             id:  id,
@@ -68,17 +75,19 @@
                     text : "Project description 1.",
                     toggled: true,
                     include: true,
+                    id: Math.random().toString(20),
                 },
                 {
                     text : "Project description line 2.",
                     toggled: true,
                     include: true,
-
+                    id: Math.random().toString(20),
                 },
                 {
                     text : "More stuff...",
                     toggled: true,
                     include: true,
+                    id: Math.random().toString(20),
                 }
             ],
             scores : []
@@ -88,7 +97,7 @@
     }
 
     function add_course () {
-        let id = Math.random().toString(36).substr(2, 9);
+        let id = Math.random().toString(20);
         $app_data.additional_courses.push({
             name : "",
             id:  id,
@@ -99,17 +108,19 @@
                     text : "Course 1",
                     toggled: true,
                     include: true,
+                    id: Math.random().toString(20),
                 },
                 {
                     text : "Course 2",
                     toggled: true,
                     include: true,
-
+                    id: Math.random().toString(20),
                 },
                 {
                     text : "Course 3",
                     toggled: true,
                     include: true,
+                    id: Math.random().toString(20),
                 }
             ],
             scores : []
@@ -119,7 +130,7 @@
     }
 
     function add_work() {
-        let id = Math.random().toString(36).substr(2, 9);
+        let id = Math.random().toString(20);
         $app_data.work_data.push({
             name : "Company Name",
             id:  id,
@@ -130,17 +141,20 @@
                     text : "Position",
                     toggled: false,
                     include: true,
+                    id: Math.random().toString(20)
                 },
                 {
                     text : "Work line 1",
                     toggled: true,
                     include: true,
+                    id: Math.random().toString(20),
 
                 },
                 {
                     text : "Work line 2",
                     toggled: true,
                     include: true,
+                    id: Math.random().toString(20)
                 }
             ],
             scores : []
@@ -214,12 +228,27 @@
 
     }
 
+
+
+    function handle_finalize_skills(e) {
+        $app_data.skills = e.detail.items;
+    }
+
+    function handle_finalize_project(e) {
+        $app_data.projects = e.detail.items;
+    }
+
+    function handle_finalize_additional_course(e) {
+        $app_data.additional_courses = e.detail.items;
+    }
+
+    function handle_finalize_work_data(e) {
+        $app_data.work_data = e.detail.items;
+    }
+    
     onMount(() => {
     });
 
-
-
-    // $: console.log($app_data.name);
 </script>
 
 <div class="flex">
@@ -249,36 +278,50 @@
 
         <h2 class="projects-header">Skills</h2>
         {#if typeof $app_data != 'undefined' && $app_data.skills != 'undefined'}
-            {#each $app_data.skills as skill_data}
-                <Project bind:project_data={skill_data} delete_func={() => {remove_skill(skill_data)}}/>
-                <!-- <button on:click={remove_project(project_data)}>Remove</button> -->
-            {/each}
+            <section use:dndzone="{{items: $app_data.skills, flipDurationMs, type:"group"}}"  on:consider={handle_finalize_skills} on:finalize={handle_finalize_skills}>
+                {#each $app_data.skills as skill_data(skill_data.id)}
+                    <div animate:flip="{{duration: flipDurationMs}}">
+                        <Project bind:project_data={skill_data} delete_func={() => {remove_skill(skill_data)}}/>
+                    </div>
+                {/each}
+            </section>
         {/if}
         <button on:click={add_skills} class="add-project">Add</button>
 
         <h2 class="projects-header">Work experience</h2>
         {#if typeof $app_data != 'undefined' && $app_data.work_data != 'undefined'}
-            {#each $app_data.work_data as project_data}
-                <Project bind:project_data={project_data} delete_func={() => {remove_work_data(project_data)}}/>
-            {/each}
+            <section use:dndzone="{{items: $app_data.work_data, flipDurationMs, type:"group"}}"  on:consider={handle_finalize_work_data} on:finalize={handle_finalize_work_data}>
+                {#each $app_data.work_data as project_data(project_data.id)}
+                    <div animate:flip="{{duration: flipDurationMs}}">
+                        <Project bind:project_data={project_data} delete_func={() => {remove_work_data(project_data)}}/>
+                    </div>
+                {/each}
+            </section>
         {/if}
         <button on:click={add_work} class="add-project">Add</button>
 
         <h2 class="projects-header">Projects</h2>
         {#if typeof $app_data != 'undefined' && $app_data.projects != 'undefined'}
-            {#each $app_data.projects as project_data}
-                <Project bind:project_data={project_data} delete_func={() => {remove_project(project_data)}}/>
-                <!-- <button on:click={remove_project(project_data)}>Remove</button> -->
-            {/each}
+            <section use:dndzone="{{items: $app_data.projects, flipDurationMs, type:"group"}}"  on:consider={handle_finalize_project} on:finalize={handle_finalize_project}>
+                {#each $app_data.projects as project_data(project_data.id)}
+                    <div animate:flip="{{duration: flipDurationMs}}">
+                        <Project bind:project_data={project_data} delete_func={() => {remove_project(project_data)}}/>
+                    </div>
+                {/each}
+            </section>
         {/if}
     
         <button on:click={add_project} class="add-project">Add</button>
     
         <h2 class="projects-header">Additional courses</h2>
         {#if typeof $app_data != 'undefined' && $app_data.additional_courses != 'undefined'}
-            {#each $app_data.additional_courses as project_data}
-                <Project bind:project_data={project_data} delete_func={() => {remove_additional_course(project_data)}}/>
-            {/each}
+            <section use:dndzone="{{items: $app_data.additional_courses, flipDurationMs, type:"group"}}"  on:consider={handle_finalize_additional_course} on:finalize={handle_finalize_additional_course}>
+                {#each $app_data.additional_courses as project_data(project_data.id)}
+                    <div animate:flip="{{duration: flipDurationMs}}">
+                        <Project bind:project_data={project_data} delete_func={() => {remove_additional_course(project_data)}}/>
+                    </div>
+                {/each}
+            </section>
         {/if}
 
         <button on:click={add_course} class="add-project">Add</button>

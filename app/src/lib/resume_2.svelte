@@ -51,6 +51,7 @@
 	$:console.log($app_data);
 	$: console.log(project_data);
 	$: chips = $app_data?.chips;
+
 </script>
 
 <div class="container" style="--f-size: {font_size}; --f-size-small: {font_size_small};">

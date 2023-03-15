@@ -36,6 +36,7 @@ let app_data_init = {
                 text : "A description of the project",
                 toggled: true,
                 include: true,
+                id: Math.random().toString(20),
             }
         ],
     },
@@ -50,11 +51,13 @@ let app_data_init = {
                 text : "Skill 1",
                 toggled: true,
                 include: true,
+                id: Math.random().toString(20),
             },
             {
                 text : "Skill 2",
                 toggled: true,
                 include: true,
+                id: Math.random().toString(20),
             }
         ],
     },
@@ -68,6 +71,7 @@ let app_data_init = {
               text : "Give me a job pls",
               toggled: true,
               include: true,
+              id: Math.random().toString(20),
           }
       ],
   },
@@ -81,11 +85,13 @@ let app_data_init = {
                 text : "Course 1 ,",
                 toggled: false,
                 include: true,
+                id: Math.random().toString(20),
             },
             {
                 text : "Course 2 ,",
                 toggled: false,
                 include: true,
+                id: Math.random().toString(20),
             }
         ],
     },
@@ -102,11 +108,13 @@ let app_data_init = {
             text : "xxx-xxx-xxxx",
             toggled: true,
             include: true,
+            id: Math.random().toString(20),
         },
         {
             text : "Austin, Tx",
             toggled: true,
             include: true,
+            id: Math.random().toString(20),
         }
     ],
   },
@@ -121,21 +129,23 @@ let app_data_init = {
               text : "Position",
               toggled: false,
               include: true,
+              id: Math.random().toString(20),
           },
           {
               text : "Work line 1",
               toggled: true,
               include: true,
-
+              id: Math.random().toString(20),
           },
           {
               text : "Work line 2",
               toggled: true,
               include: true,
+              id: Math.random().toString(20),
           }
       ],
       scores : []
   }],
 }   
 
-export const app_data = localStore('app_data_19', app_data_init);
+export const app_data = localStore('app_data_26', app_data_init);
