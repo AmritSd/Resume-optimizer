@@ -10,6 +10,7 @@
     // Define a variable to store the user input
     let inputValue = '';
     let export_file_name = '';
+    let right_width = 8.8;
     const flipDurationMs = 200;
 
     // Define a function to handle the form submission
@@ -246,13 +247,23 @@
         $app_data.work_data = e.detail.items;
     }
 
+    function decrease_width() {
+        right_width = right_width - 0.5;
+    }
+
+    function increase_width() {
+        right_width = right_width + 0.5;
+    }
+
     onMount(() => {
     });
 
 </script>
 
-<div class="flex">
+<div class="flex" style="--right-width: {right_width}in;">
     <div class="left">
+        <button class="resize-buttons one" on:click={decrease_width}>+</button>
+        <button class="resize-buttons two"on:click={increase_width}>-</button>
         <h1 class="projects-header">Resume optimizer</h1>
         <form class="jd-form">
             <textarea bind:value={inputValue} placeholder="Job description..."/>
@@ -377,6 +388,7 @@
         overflow: hidden;
     }
     .flex {
+        --right-width: 8.8in;
         display: flex;
         flex-direction: row;
         justify-content: space-around;
@@ -385,7 +397,7 @@
     
     
     .right {
-        width: 8.8in;
+        width: var(--right-width);
         max-height: 90vh;
         overflow-y: scroll;
     }
@@ -393,7 +405,8 @@
     .left {
         max-height: 90vh;
         /* width: 5in; */
-        max-width: calc(100vw - 8.5in - 2rem);
+        --left-width: calc(100vw - var(--right-width) - 2rem + 0.3in);
+        max-width: var(--left-width);
         overflow-y: scroll;
         scrollbar-width: thin;
     }
@@ -478,5 +491,21 @@
         justify-content: space-around;
         font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
         margin-top: 1rem;
+    }
+
+    .resize-buttons {
+        position: absolute;
+        border: none;
+    }
+    .resize-buttons:hover {
+        background-color: palegoldenrod;
+    }
+    .resize-buttons.one {
+        top: 0;
+        left: 2rem;
+    }
+    .resize-buttons.two {
+        top: 0;
+        left: 0;
     }
 </style>
