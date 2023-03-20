@@ -275,7 +275,7 @@
 	.container {
 		--f-size: 1rem;
 		--f-size-small: 0.9rem;
-		--color-subtitle: #666;
+		--color-subtitle: #333;
 		max-width: calc(8.5in - 1rem);
 		margin: 0 auto;
 		padding: 0rem 0.5rem;
