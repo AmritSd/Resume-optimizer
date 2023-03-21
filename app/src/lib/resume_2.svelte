@@ -2,6 +2,7 @@
 
 
 	import { app_data } from "$lib/data_store.js";
+	import { onMount } from "svelte";
 
     let app_data_init = {
         projects : [],
@@ -33,9 +34,9 @@
 	let work_data = app_data_init.work_data;
 	let font_size = "12pt";
 	let font_size_small = "10pt";
+	let margin = "0.5rem";
 	let resume_name = "Amrit Sandhu";
 	let chips = app_data_init.chips;
-
 
 
 	// let app_data = localStore('app_data_9', app_data_init);
@@ -51,8 +52,14 @@
 	$:console.log($app_data);
 	$: console.log(project_data);
 	$: chips = $app_data?.chips;
+	$: margin = $app_data?.margin;
 
+	onMount(() => {
+		var r = document.querySelector(':root');
+		r.style.setProperty('--margin', margin);
+	});
 </script>
+
 
 <div class="container" style="--f-size: {font_size}; --f-size-small: {font_size_small};">
 	<div class="section">
@@ -254,8 +261,12 @@
 
 <style>
 	/* Add your CSS styles here */
+	:global(:root) {
+		--margin: 0.5rem;
+	}
     @page {
-        margin: 0.5rem;
+        margin: var(--margin);
+		margin: 1rem;
 		margin-top: 1rem;
 		margin-bottom: 0rem;
     }
@@ -278,7 +289,7 @@
 		--color-subtitle: #333;
 		max-width: calc(8.5in - 1rem);
 		margin: 0 auto;
-		padding: 0rem 0.5rem;
+		padding: 0rem 1rem;
 		text-align: left;
         /* Georgia */
         /* font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; */

@@ -256,6 +256,9 @@
     }
 
     onMount(() => {
+        if(typeof $app_data != 'undefined' && typeof $app_data.margin == "undefined") {
+            $app_data.margin = "0.5rem";
+        }
     });
 
 </script>
@@ -364,7 +367,14 @@
         <label for="font-size-small">Font size small</label>
         <input type="number" id="font-size-small" on:change={(e) => {$app_data.font_size_small = e.target.value + "pt"; $app_data = $app_data;}} value={$app_data?.font_size_small.replace("pt", "")}/>
     </form>
-    
+
+    {#if typeof $app_data != 'undefined' && typeof $app_data.margin != 'undefined'}
+    {console.log($app_data.margin)}
+        <form class="margin-form">
+            <label for="margin">Margin</label>
+            <input type="number" id="margin" on:change={(e) => {$app_data.margin = e.target.value + "rem"; $app_data = $app_data;}} value={$app_data?.margin.replace("rem", "")}/>
+        </form>
+    {/if}
     <a href="/resume">Download resume</a>
 </div>
 
@@ -485,6 +495,16 @@
         background-color: palegoldenrod;
     }
 
+    .margin-form input {
+        width: 3rem;
+        padding: calc(0.5rem - 2px) 0.5rem;
+        border:none;
+        background-color: #eee;
+    }
+
+    .margin-form input:hover {
+        background-color: palegoldenrod;
+    }
     .flex-bottom {
         display: flex;
         flex-direction: row;
