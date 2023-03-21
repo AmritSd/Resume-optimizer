@@ -381,6 +381,10 @@
 		letter-spacing: 1px;
 		flex-shrink: 0;
 	}
+
+	.contact-info .chip:last-child {
+		margin-right: 0;
+	}
 	.contact-info i {
 		margin-right: 5px;
 	}
