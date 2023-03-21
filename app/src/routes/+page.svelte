@@ -369,7 +369,6 @@
     </form>
 
     {#if typeof $app_data != 'undefined' && typeof $app_data.margin != 'undefined'}
-    {console.log($app_data.margin)}
         <form class="margin-form">
             <label for="margin">Margin</label>
             <input type="number" id="margin" on:change={(e) => {$app_data.margin = e.target.value + "rem"; $app_data = $app_data;}} value={$app_data?.margin.replace("rem", "")}/>
