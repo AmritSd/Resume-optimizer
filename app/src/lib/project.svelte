@@ -173,7 +173,7 @@
 </div>
 
 {#if !lines.some(x => !x.id)}
-    <section use:dndzone="{{items: lines, flipDurationMs, type: "row"}}"  on:consider={handle_consider} on:finalize={handle_finalize}>
+    <section use:dndzone="{{items: lines, flipDurationMs, type: "row"}}"  on:finalize={handle_finalize}>
         {#each lines as row, ind (row.id)}
             <div class="my-grid__row data-row" animate:flip="{{duration: flipDurationMs}}">
                 <div class="my-grid__delete">

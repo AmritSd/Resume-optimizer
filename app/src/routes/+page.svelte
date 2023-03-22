@@ -292,7 +292,7 @@
 
         <h2 class="projects-header">Skills</h2>
         {#if typeof $app_data != 'undefined' && $app_data.skills != 'undefined'}
-            <section use:dndzone="{{items: $app_data.skills, flipDurationMs, type:"group"}}"  on:consider={handle_finalize_skills} on:finalize={handle_finalize_skills}>
+            <section use:dndzone="{{items: $app_data.skills, flipDurationMs, type:"group"}}"   on:finalize={handle_finalize_skills}>
                 {#each $app_data.skills as skill_data(skill_data.id)}
                     <div animate:flip="{{duration: flipDurationMs}}">
                         <Project bind:project_data={skill_data} delete_func={() => {remove_skill(skill_data)}}/>
@@ -304,7 +304,7 @@
 
         <h2 class="projects-header">Work experience</h2>
         {#if typeof $app_data != 'undefined' && $app_data.work_data != 'undefined'}
-            <section use:dndzone="{{items: $app_data.work_data, flipDurationMs, type:"group"}}"  on:consider={handle_finalize_work_data} on:finalize={handle_finalize_work_data}>
+            <section use:dndzone="{{items: $app_data.work_data, flipDurationMs, type:"group"}}"   on:finalize={handle_finalize_work_data}>
                 {#each $app_data.work_data as project_data(project_data.id)}
                     <div animate:flip="{{duration: flipDurationMs}}">
                         <Project bind:project_data={project_data} delete_func={() => {remove_work_data(project_data)}}/>
@@ -316,7 +316,7 @@
 
         <h2 class="projects-header">Projects</h2>
         {#if typeof $app_data != 'undefined' && $app_data.projects != 'undefined'}
-            <section use:dndzone="{{items: $app_data.projects, flipDurationMs, type:"group"}}"  on:consider={handle_finalize_project} on:finalize={handle_finalize_project}>
+            <section use:dndzone="{{items: $app_data.projects, flipDurationMs, type:"group"}}"  on:finalize={handle_finalize_project}>
                 {#each $app_data.projects as project_data(project_data.id)}
                     <div animate:flip="{{duration: flipDurationMs}}">
                         <Project bind:project_data={project_data} delete_func={() => {remove_project(project_data)}}/>
@@ -329,7 +329,7 @@
     
         <h2 class="projects-header">Additional courses</h2>
         {#if typeof $app_data != 'undefined' && $app_data.additional_courses != 'undefined'}
-            <section use:dndzone="{{items: $app_data.additional_courses, flipDurationMs, type:"group"}}"  on:consider={handle_finalize_additional_course} on:finalize={handle_finalize_additional_course}>
+            <section use:dndzone="{{items: $app_data.additional_courses, flipDurationMs, type:"group"}}"   on:finalize={handle_finalize_additional_course}>
                 {#each $app_data.additional_courses as project_data(project_data.id)}
                     <div animate:flip="{{duration: flipDurationMs}}">
                         <Project bind:project_data={project_data} delete_func={() => {remove_additional_course(project_data)}}/>
